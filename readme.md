@@ -178,7 +178,7 @@ npm run build         # Full build
 
 ## Method 3: Server Bundled Outside ASAR (Source Code Hidden) folder -> software-exe-3
 
-Server code is bundled with esbuild and placed outside `app.asar`. Source code is not visible.
+Server code is bundled with esbuild into a single file and placed outside `app.asar`. This hides your source code while keeping it accessible.
 
 ### Project Structure
 ```
@@ -196,19 +196,68 @@ project/
 └── assets/
     └── icon.ico
 ```
-
 ### How It Works
 - Server is bundled with esbuild into a single file
 - Bundled server is placed in `extraResources` → `resources/server/dist/`
 - Source code is not included - only the bundled output
 - User cannot see the original server source
 
+---
+
+### Step-by-Step Build Guide
+
+#### Step 1: Install esbuild
+```bash
+npm install esbuild@0.21.5 --save-dev
+```
+
+> ⚠️ **Important:** Use version `0.21.5` to match Vite's esbuild version. Using a newer version will cause build errors.
+
+#### Step 2: Add Bundle Script
+In `package.json`, add this script:
+```json
+"build:server-bundle": "esbuild server/index.js --bundle --platform=node --target=node18 --format=cjs --outfile=server/dist/server.cjs"
+```
+
+#### Step 3: Update electron/main.js
+```javascript
+const serverPath = isDev
+  ? path.join(__dirname, '..', 'server', 'index.js')
+  : path.join(process.resourcesPath, 'server', 'dist', 'server.cjs');
+```
+
+> ⚠️ **Important:** Use `.cjs` extension (not `.js`). Since your project uses `"type": "module"`, Node treats `.js` files as ES modules. Using `.cjs` forces CommonJS mode which is required for bundled Node code.
+
+#### Step 4: Update extraResources in package.json
+```json
+"extraResources": [
+  { "from": ".env", "to": ".env" },
+  { "from": "server/dist", "to": "server/dist" }
+]
+```
+
+> This ensures only the bundled file is shipped, not your source code (routes, models, etc.).
+
+#### Step 5: Run Build
+```bash
+npm run build
+```
+
+---
+
+### Common Errors & Fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Host version does not match` | esbuild version conflict | Use `esbuild@0.21.5` |
+| `require is not defined` | Using `.js` instead of `.cjs` | Use `--format=cjs` and `.cjs` extension |
+| `Server not starting` | Wrong path in main.js | Ensure path points to `server/dist/server.cjs` |
+
 ### Build Process
 ```bash
 npm run build:client        # Build frontend
 npm run build:server-bundle # Bundle server with esbuild
-npm run build:server        # Install server deps (if needed)
-npm run build               # Full build
+npm run build               # Full build with electron-builder
 ```
 
 ### package.json Configuration
@@ -221,7 +270,6 @@ npm run build               # Full build
   "scripts": {
     "build:client": "cd client && npm run build",
     "build:server-bundle": "esbuild server/index.js --bundle --platform=node --target=node18 --format=cjs --outfile=server/dist/server.cjs",
-    "build:server": "cd server && npm install --production",
     "build": "npm run build:client && npm run build:server-bundle && electron-builder --win --x64"
   },
   "devDependencies": {
@@ -256,7 +304,6 @@ npm run build               # Full build
   }
 }
 ```
-
 ### esbuild Bundle Command Explained
 
 | Flag | Purpose |
@@ -266,7 +313,6 @@ npm run build               # Full build
 | `--target=node18` | Target Node.js 18+ |
 | `--format=cjs` | CommonJS output format |
 | `--outfile` | Output path |
-
 ---
 
 ## Common Scripts (Used in All Methods)
