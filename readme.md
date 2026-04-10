@@ -339,3 +339,35 @@ npm run build               # Full build
 | Source protected | No | No | Yes |
 | Harder to modify | No | Yes (extract) | Yes |
 | Recommended for | Development | Testing | Production |
+
+---
+
+## Recommended: Method 3 (Server Bundled Outside ASAR)
+
+This is the **recommended approach** for production applications. Here's why:
+
+### 1. Source Code Protection
+- Server code is bundled into a single file using esbuild
+- Original source code (controllers, routes, models) is not included
+- Users cannot read your business logic or see API implementations
+
+### 2. Security
+- No exposed source files in `resources/` folder
+- Database credentials, API keys, and secrets remain protected
+- Prevents users from modifying or tampering with server code
+
+### 3. Performance
+- Bundled code is optimized and minified
+- Single file means faster loading
+- No unnecessary files = smaller package size
+
+### 4. Maintainability
+- Server runs from outside asar - easy to update/replace
+- Can still access the bundled file if needed for debugging
+- Clean separation between source (for you) and bundle (for users)
+
+### When to Use Method 3
+- Commercial/proprietary applications
+- Apps with sensitive business logic
+- Any production deployment where code security matters
+- When you want to protect API endpoints and database queries
