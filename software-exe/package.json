@@ -1,0 +1,61 @@
+{
+  "name": "devpulse",
+  "version": "1.0.0",
+  "description": "Developer Daily Dashboard for Developers",
+  "main": "electron/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail -n CLIENT,ELECTRON \"npm run dev:client\" \"npm run dev:electron\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:electron": "electron .",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm install --production",
+    "build": "npm run build:client && npm run build:server && electron-builder --win --x64"
+  },
+  "keywords": [],
+  "author": "DevPulse",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "auto-launch": "^5.0.6"
+  },
+  "build": {
+    "appId": "com.devpulse.app",
+    "productName": "DevPulse",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "files": [
+      "electron/**/*",
+      "client/dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": ".env",
+        "to": ".env"
+      },
+      {
+        "from": "server",
+        "to": "server"
+      }
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    }
+  }
+}

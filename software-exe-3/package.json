@@ -1,0 +1,71 @@
+{
+  "name": "devpulse",
+  "version": "1.0.0",
+  "description": "Developer Daily Dashboard for Developers",
+  "main": "electron/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail -n CLIENT,ELECTRON \"npm run dev:client\" \"npm run dev:electron\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "nodemon server/index.js",
+    "dev:electron": "electron .",
+    "start": "node server/index.js",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm install --production",
+    "build": "npm run build:client && npm run build:server-bundle && electron-builder --win --x64",
+    "build:server-bundle": "esbuild server/index.js --bundle --platform=node --target=node18 --format=cjs --outfile=server/dist/server.cjs"
+  },
+  "keywords": [],
+  "author": "DevPulse",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1",
+    "esbuild": "^0.21.5",
+    "nodemon": "^3.0.3"
+  },
+  "dependencies": {
+    "auto-launch": "^5.0.6",
+    "axios": "^1.6.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.2",
+    "express": "^4.18.2",
+    "mongoose": "^8.1.0"
+  },
+  "build": {
+    "appId": "com.devpulse.app",
+    "productName": "DevPulse",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "files": [
+      "electron/**/*",
+      "client/dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": ".env",
+        "to": ".env"
+      },
+      {
+        "from": "server/dist",
+        "to": "server/dist"
+      }
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    }
+  }
+}
