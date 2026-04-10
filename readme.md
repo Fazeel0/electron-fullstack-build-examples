@@ -371,3 +371,14 @@ This is the **recommended approach** for production applications. Here's why:
 - Apps with sensitive business logic
 - Any production deployment where code security matters
 - When you want to protect API endpoints and database queries
+
+---
+
+## Next Steps: Advanced Security
+
+For production apps requiring additional protection, see **[advanced-security.md](./advanced-security.md)** which covers:
+
+- Code obfuscation with javascript-obfuscator
+- Integrity check (anti-tampering)
+- Disable devtools in production
+- Combined security approach
